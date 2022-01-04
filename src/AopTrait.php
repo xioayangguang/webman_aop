@@ -7,7 +7,7 @@
 namespace xioayangguang\webman_aop;
 
 /**
- * @property static array  $__AspectMap__
+ * @property array $__AspectMap__
  */
 trait AopTrait
 {
@@ -17,7 +17,7 @@ trait AopTrait
      * @param array $params
      * @return mixed
      */
-    public function __ProxyClosure__(\Closure $closure, string $method, array $params)
+    public static function __ProxyClosure__(\Closure $closure, string $method, array $params)
     {
         $container = self::__GetContainer__();
         $pipes = self::$__AspectMap__[$method] ?? [];
@@ -40,7 +40,7 @@ trait AopTrait
      * 获取容器，兼容老版本
      * @return \Psr\Container\ContainerInterface
      */
-    private function __GetContainer__()
+    private static function __GetContainer__()
     {
         if (class_exists('\support\Container', true)) {
             return \support\Container::instance();
