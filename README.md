@@ -15,8 +15,8 @@ composer require xiaoyangguang/webman_aop
 ```php
 <?php
 return [
+    xioayangguang\webman_aop\AopRegister::class  //建议放在上面，否则先前加载的类无法使用到AOP
      //....省略其他 
-    xioayangguang\webman_aop\AopRegister::class
 ];
 ```
 
