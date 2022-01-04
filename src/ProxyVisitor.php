@@ -127,8 +127,8 @@ class ProxyVisitor extends NodeVisitorAbstract
             }
         });
         $class_node = $node_finder->findFirstInstanceOf($nodes, Class_::class);
-        $add_enhancement_methods && array_unshift($class_node->stmts, $this->getAopTraitUseNode());
         array_unshift($class_node->stmts, $this->getAopPropertyNode());
+        $add_enhancement_methods && array_unshift($class_node->stmts, $this->getAopTraitUseNode());
         return $nodes;
     }
 }
