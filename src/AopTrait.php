@@ -30,8 +30,8 @@ trait AopTrait
                 $pipe->afterAdvice($res, $params, $method);
                 return $res;
             };
-        }, function () use ($closure, $params) {
-            return $closure(...$params);
+        }, function () use ($closure) {
+            return $closure();
         });
         return $callback();
     }
