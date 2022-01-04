@@ -12,6 +12,7 @@ use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
 use PhpParser\Node\Param;
@@ -66,7 +67,7 @@ class ProxyVisitor extends NodeVisitorAbstract
             foreach ($item as $value) $array_items[] = new ArrayItem(new String_($value));
             $property_array_items[] = new ArrayItem(new Array_($array_items), new String_($key));
         }
-        return new Property(Class_::MODIFIER_PRIVATE, [new PropertyProperty('__AspectMap__', new Array_($property_array_items))]);
+        return new Property(Class_::MODIFIER_STATIC, [new PropertyProperty('__AspectMap__', new Array_($property_array_items))]);
     }
 
     /**
@@ -78,7 +79,7 @@ class ProxyVisitor extends NodeVisitorAbstract
         if ($node instanceof Class_) {
             return new Class_($this->className, ['flags' => $node->flags, 'stmts' => $node->stmts, 'extends' => $node->extends,]);
         }
-        if ($node instanceof ClassMethod && !$node->isStatic() && ($node->isPublic() || $node->isProtected())) {
+        if ($node instanceof ClassMethod) {
             $method_name = $node->name->toString();
             if (in_array($method_name, array_keys($this->property))) {
                 $uses = [];
@@ -87,11 +88,11 @@ class ProxyVisitor extends NodeVisitorAbstract
                         $uses[$key] = new Param($param->var, null, null, true);
                 }
                 $params = [
-                    new Closure(['static' => $node->isStatic(), 'uses' => $uses, 'stmts' => $node->stmts]),
+                    new Closure(['static' => false, 'uses' => $uses, 'stmts' => $node->stmts]),
                     new String_($method_name),
                     new FuncCall(new Name('func_get_args')),
                 ];
-                $stmts = [new Return_(new MethodCall(new Variable('this'), '__ProxyClosure__', $params))];
+                $stmts = [new Return_(new StaticCall(new Name('self'), '__ProxyClosure__', $params))];
                 $return_type = $node->getReturnType();
                 if ($return_type instanceof Name && $return_type->toString() === 'self') {
                     $return_type = new Name('\\' . $this->className);
@@ -126,8 +127,8 @@ class ProxyVisitor extends NodeVisitorAbstract
             }
         });
         $class_node = $node_finder->findFirstInstanceOf($nodes, Class_::class);
-        $add_enhancement_methods && array_unshift($class_node->stmts, $this->getAopPropertyNode());
-        array_unshift($class_node->stmts, $this->getAopTraitUseNode());
+        $add_enhancement_methods && array_unshift($class_node->stmts, $this->getAopTraitUseNode());
+        array_unshift($class_node->stmts, $this->getAopPropertyNode());
         return $nodes;
     }
 }

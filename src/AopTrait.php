@@ -7,7 +7,7 @@
 namespace xioayangguang\webman_aop;
 
 /**
- * @property array __AspectMap__
+ * @property static array  $__AspectMap__
  */
 trait AopTrait
 {
@@ -20,7 +20,7 @@ trait AopTrait
     public function __ProxyClosure__(\Closure $closure, string $method, array $params)
     {
         $container = self::__GetContainer__();
-        $pipes = $this->__AspectMap__[$method] ?? [];
+        $pipes = self::$__AspectMap__[$method] ?? [];
         $callback = array_reduce($pipes, function ($carry, $pipe) use ($method, $container, &$params) {
             return function () use ($method, $carry, $pipe, $container, &$params) {
                 /** @var AspectInterface $pipe */
