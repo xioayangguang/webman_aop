@@ -1,0 +1,27 @@
+{
+  "name": "xiaoyangguang/webman_aop",
+  "description": "webman_aop",
+  "keywords": [
+    "webman",
+    "aop"
+  ],
+  "authors": [
+    {
+      "name": "xiaoyangguang",
+      "email": "930029203@qq.com",
+      "homepage": "https://www.workerman.net/",
+      "role": "Developer"
+    }
+  ],
+  "type": "library",
+  "require": {
+    "php": "~7.2",
+    "workerman/webman": "*",
+    "nikic/php-parser": "^4.13"
+  },
+  "autoload": {
+    "psr-4": {
+      "xioayangguang\\webman_aop\\": "./src"
+    }
+  }
+}
