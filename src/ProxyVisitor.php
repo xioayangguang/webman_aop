@@ -86,24 +86,24 @@ class ProxyVisitor extends NodeVisitorAbstract
                     if ($param instanceof Param)
                         $uses[$key] = new Param($param->var, null, null, true);
                 }
+                $params = [
+                    new Closure(['static' => $node->isStatic(), 'uses' => $uses, 'stmts' => $node->stmts]),
+                    new String_($method_name),
+                    new FuncCall(new Name('func_get_args')),
+                ];
+                $stmts = [new Return_(new MethodCall(new Variable('this'), '__ProxyClosure__', $params))];
+                $return_type = $node->getReturnType();
+                if ($return_type instanceof Name && $return_type->toString() === 'self') {
+                    $return_type = new Name('\\' . $this->className);
+                }
+                return new ClassMethod($method_name, [
+                    'flags' => $node->flags,
+                    'byRef' => $node->byRef,
+                    'params' => $node->params,
+                    'returnType' => $return_type,
+                    'stmts' => $stmts,
+                ]);
             }
-            $params = [
-                new Closure(['static' => $node->isStatic(), 'uses' => $uses, 'stmts' => $node->stmts]),
-                new String_($method_name),
-                new FuncCall(new Name('func_get_args')),
-            ];
-            $stmts = [new Return_(new MethodCall(new Variable('this'), '__ProxyClosure__', $params))];
-            $return_type = $node->getReturnType();
-            if ($return_type instanceof Name && $return_type->toString() === 'self') {
-                $return_type = new Name('\\' . $this->className);
-            }
-            return new ClassMethod($method_name, [
-                'flags' => $node->flags,
-                'byRef' => $node->byRef,
-                'params' => $node->params,
-                'returnType' => $return_type,
-                'stmts' => $stmts,
-            ]);
         }
     }
 
