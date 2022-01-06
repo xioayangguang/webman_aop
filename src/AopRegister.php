@@ -36,9 +36,9 @@ class AopRegister implements Bootstrap
             $proxy_code = self::generateCode($business_class, $method);
             $cache_path = $cache_dir . str_replace(DIRECTORY_SEPARATOR, "_", $business_class) . '.php';
             file_put_contents($cache_path, "<?php" . PHP_EOL . $proxy_code);
-            $var = 0;
-            exec("php -l " . $cache_path, $out, $var);
-            if ($var) throw new \Exception(sprintf('Class %s check failed', $business_class));
+            //$var = 0;
+            //exec("php -l " . $cache_path, $out, $var);
+            //if ($var) throw new \Exception(sprintf('Class %s check failed', $business_class));
         }
         self::autoloadRegister();
     }
