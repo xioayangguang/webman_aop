@@ -13,7 +13,7 @@ interface AspectInterface
      * @param $params
      * @param $method
      */
-    public function beforeAdvice($params, $method): void;
+    public static function beforeAdvice($params, $method): void;
 
     /**
      * 后置通知
@@ -21,5 +21,5 @@ interface AspectInterface
      * @param $params
      * @param $method
      */
-    public function afterAdvice(&$res, $params, $method): void;
+    public static function afterAdvice(&$res, $params, $method): void;
 }
