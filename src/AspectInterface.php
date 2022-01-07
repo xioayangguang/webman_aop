@@ -24,4 +24,13 @@ interface AspectInterface
      * @param $method
      */
     public static function afterAdvice(&$res, $params, $class, $method): void;
+
+    /**
+     * 异常处理
+     * @param $res
+     * @param $params
+     * @param $class
+     * @param $method
+     */
+    public static function exceptionHandler(&$res, $params, $class, $method): void;
 }

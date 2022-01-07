@@ -23,11 +23,16 @@ trait AopTrait
         $pipes = self::$__AspectMap__[$method] ?? [];
         $callback = array_reduce($pipes, function ($carry, $pipe) use ($method, $class, &$params) {
             return function () use ($method, $class, $carry, $pipe, &$params) {
-                /** @var AspectInterface $pipe */
-                $pipe::beforeAdvice($params, $class, $method);
-                $res = $carry();
-                $pipe::afterAdvice($res, $params, $class, $method);
-                return $res;
+                try {
+                    /** @var AspectInterface $pipe */
+                    $pipe::beforeAdvice($params, $class, $method);
+                    $res = $carry();
+                    $pipe::afterAdvice($res, $params, $class, $method);
+                    return $res;
+                } catch (\Throwable $throwable) {
+                    $pipe::exceptionHandler($throwable, $params, $class, $method);
+                    throw $throwable;
+                }
             };
         }, function () use ($closure) {
             return $closure();
