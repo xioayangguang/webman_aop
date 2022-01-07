@@ -11,9 +11,7 @@ use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
 use PhpParser\Node\Param;
 use PhpParser\Node\Scalar\String_;
@@ -88,15 +86,19 @@ class ProxyVisitor extends NodeVisitorAbstract
         if ($node instanceof ClassMethod) {
             $method_name = $node->name->toString();
             if (in_array($method_name, array_keys($this->property))) {
-                $uses = [];
+                $uses = $var_name = [];
                 foreach ($node->params as $key => $param) {
-                    if ($param instanceof Param) $uses[$key] = new Param($param->var, null, null, true);
+                    if ($param instanceof Param) {
+                        $uses[$key] = new Param($param->var, null, null, true);
+                        $var_name[$key] = new ArrayItem(new String_($param->var->name));
+                    }
                 }
                 $params = [
                     new Closure(['static' => false, 'uses' => $uses, 'stmts' => $node->stmts]),
                     new String_($method_name),
                     new FuncCall(new Name('get_class')),
                     new FuncCall(new Name('func_get_args')),
+                    new Array_($var_name)
                 ];
                 $stmts = [new Return_(new StaticCall(new Name('self'), '__ProxyClosure__', $params))];
                 $return_type = $node->getReturnType();
