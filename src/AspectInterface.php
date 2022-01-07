@@ -27,10 +27,10 @@ interface AspectInterface
 
     /**
      * 异常处理
-     * @param $res
+     * @param $throwable
      * @param $params
      * @param $class
      * @param $method
      */
-    public static function exceptionHandler(&$res, $params, $class, $method): void;
+    public static function exceptionHandler($throwable, $params, $class, $method): void;
 }
