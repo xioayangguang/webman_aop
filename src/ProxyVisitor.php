@@ -77,7 +77,7 @@ class ProxyVisitor extends NodeVisitorAbstract
     public function leaveNode(Node $node)
     {
         if ($node instanceof Class_) {
-            return new Class_($this->className, [ 
+            return new Class_($this->className, [
                 'flags' => $node->flags,
                 'stmts' => $node->stmts,
                 'extends' => $node->extends,
@@ -90,12 +90,12 @@ class ProxyVisitor extends NodeVisitorAbstract
             if (in_array($method_name, array_keys($this->property))) {
                 $uses = [];
                 foreach ($node->params as $key => $param) {
-                    if ($param instanceof Param)
-                        $uses[$key] = new Param($param->var, null, null, true);
+                    if ($param instanceof Param) $uses[$key] = new Param($param->var, null, null, true);
                 }
                 $params = [
                     new Closure(['static' => false, 'uses' => $uses, 'stmts' => $node->stmts]),
                     new String_($method_name),
+                    new FuncCall(new Name('get_class')),
                     new FuncCall(new Name('func_get_args')),
                 ];
                 $stmts = [new Return_(new StaticCall(new Name('self'), '__ProxyClosure__', $params))];
