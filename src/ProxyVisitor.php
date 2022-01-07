@@ -77,7 +77,13 @@ class ProxyVisitor extends NodeVisitorAbstract
     public function leaveNode(Node $node)
     {
         if ($node instanceof Class_) {
-            return new Class_($this->className, ['flags' => $node->flags, 'stmts' => $node->stmts, 'extends' => $node->extends,]);
+            return new Class_($this->className, [ 
+                'flags' => $node->flags,
+                'stmts' => $node->stmts,
+                'extends' => $node->extends,
+                'implements' => $node->implements,
+                'attrGroups' => $node->attrGroups,
+            ]);
         }
         if ($node instanceof ClassMethod) {
             $method_name = $node->name->toString();
