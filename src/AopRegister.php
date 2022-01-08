@@ -20,9 +20,19 @@ class AopRegister implements Bootstrap
      */
     public static function start($worker)
     {
+        self::GenerateProxy(config('aop'));
+        self::autoloadRegister();
+    }
+
+    /**
+     * 生成代理对象
+     * @param array $aspect_config
+     * @throws \Exception
+     */
+    public static function GenerateProxy(array $aspect_config)
+    {
         $cache_dir = runtime_path() . '/aop/';
         self::clearCache($cache_dir);
-        $aspect_config = config('aop');
         $aspect_map = [];
         foreach ($aspect_config as $aspect_class => $business_classes) {
             foreach ($business_classes as $class => $methods) {
@@ -37,7 +47,6 @@ class AopRegister implements Bootstrap
             $cache_path = $cache_dir . str_replace(DIRECTORY_SEPARATOR, "_", $business_class) . '.php';
             file_put_contents($cache_path, "<?php" . PHP_EOL . $proxy_code, LOCK_EX);
         }
-        self::autoloadRegister();
     }
 
     /**
