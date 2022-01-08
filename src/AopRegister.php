@@ -20,67 +20,53 @@ class AopRegister implements Bootstrap
      */
     public static function start($worker)
     {
-        try {
-            $cache_dir = runtime_path() . '/aop/';
-            $fp = fopen($cache_dir . 'process.lock', 'a+');
-            if (flock($fp, LOCK_EX | LOCK_NB)) {
-                var_dump($worker->id . '获取锁');
-                self::clearCache($cache_dir);
-                $aspect_config = config('aop');
-                $aspect_map = [];
-                foreach ($aspect_config as $aspect_class => $business_classes) {
-                    foreach ($business_classes as $class => $methods) {
-                        foreach ($methods as $method) {
-                            $aspect_map[$class][$method][] = $aspect_class;
-                        }
-                    }
+        $cache_dir = runtime_path() . '/aop/';
+        self::clearCache($cache_dir);
+        $aspect_config = config('aop');
+        $aspect_map = [];
+        foreach ($aspect_config as $aspect_class => $business_classes) {
+            foreach ($business_classes as $class => $methods) {
+                foreach ($methods as $method) {
+                    $aspect_map[$class][$method][] = $aspect_class;
                 }
-                foreach ($aspect_map as $business_class => $method) {
-                    $business_class = \str_replace('\\', \DIRECTORY_SEPARATOR, $business_class);
-                    $proxy_code = self::generateCode($business_class, $method);
-                    $cache_path = $cache_dir . str_replace(DIRECTORY_SEPARATOR, "_", $business_class) . '.php';
-                    file_put_contents($cache_path, "<?php" . PHP_EOL . $proxy_code);
-                }
-            } else {
-                var_dump('获取锁失败');
             }
-        } catch (\Throwable $throwable) {
-            var_dump($throwable);
-            throw $throwable;
-            flock($fp, LOCK_UN);
-            fclose($fp);
         }
-        flock($fp, LOCK_UN);
-        fclose($fp);
+        foreach ($aspect_map as $business_class => $method) {
+            $business_class = \str_replace('\\', \DIRECTORY_SEPARATOR, $business_class);
+            $proxy_code = self::generateCode($business_class, $method);
+            $cache_path = $cache_dir . str_replace(DIRECTORY_SEPARATOR, "_", $business_class) . '.php';
+            file_put_contents($cache_path, "<?php" . PHP_EOL . $proxy_code, LOCK_EX);
+        }
         self::autoloadRegister();
     }
 
     /**
      * 生产代码
-     * @param $class
+     * @param $business_class
      * @param $propertys
      * @return string
      * @throws \Exception
      */
-    private static function generateCode(&$class, $propertys)
+    private static function generateCode(&$business_class, $propertys)
     {
-        $class_path = base_path() . '/' . $class . '.php';
+        $class_path = base_path() . '/' . $business_class . '.php';
+        if (!file_exists($class_path)) \Exception(sprintf('文件 %s 不存在!', $class_path));
         $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
         $ast = $parser->parse(file_get_contents($class_path));
-        $class_namespace_array = explode('/', $class);
+        $class_namespace_array = explode('/', $business_class);
         $visitor = new ProxyVisitor(end($class_namespace_array), $propertys);
         $traverser = new NodeTraverser();
         $traverser->addVisitor($visitor);
         $proxy_ast = $traverser->traverse($ast);
-        
+        if (!$proxy_ast) throw new \Exception(sprintf('Class %s AST 处理失败', $business_class));
         foreach ($proxy_ast as $node) {
             if ($node instanceof \PhpParser\Node\Stmt\Namespace_) {
                 $class_namespace = join('/', $node->name->parts);
                 $class_name = basename($class_path, ".php");
-                $class = $class_namespace . '/' . $class_name;
+                $business_class = $class_namespace . '/' . $class_name;
+                break;
             }
         }
-        if (!$proxy_ast) throw new \Exception(sprintf('Class %s AST 处理失败', $class));
         $printer = new Standard();
         return $printer->prettyPrint($proxy_ast);
     }
@@ -113,7 +99,7 @@ class AopRegister implements Bootstrap
         if (is_dir($path)) {
             $dir = scandir($path);
             foreach ($dir as $val) {
-                if ($val != "." && $val != "..") unlink($path . $val);
+                if ($val != "." && $val != "..") @unlink($path . $val);
             }
         } else {
             mkdir($path, 0755, true);
