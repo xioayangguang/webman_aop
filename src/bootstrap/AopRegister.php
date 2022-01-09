@@ -79,7 +79,7 @@ class AopRegister implements Bootstrap
      * @return string
      * @throws \Exception
      */
-    private static function generateCode(&$business_class, $propertys)
+    public static function generateCode(&$business_class, $propertys)
     {
         $class_path = base_path() . '/' . $business_class . '.php';
         if (!file_exists($class_path)) \Exception(sprintf('文件 %s 不存在!', $class_path));
