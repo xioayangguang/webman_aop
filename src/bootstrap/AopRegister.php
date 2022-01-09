@@ -4,15 +4,26 @@
  * User: zhangxiaoxiao
  */
 
-namespace xioayangguang\webman_aop;
+namespace xioayangguang\webman_aop\bootstrap;
 
 use Webman\Bootstrap;
 use PhpParser\ParserFactory;
 use PhpParser\NodeTraverser;
 use PhpParser\PrettyPrinter\Standard;
+use xioayangguang\webman_aop\ProxyVisitor;
 
 class AopRegister implements Bootstrap
 {
+    /**
+     * @var bool
+     */
+    private static $registered = false;
+
+    /**
+     * @var array
+     */
+    protected static $config = [];
+
     /**
      * @param $worker
      * @return mixed|void
@@ -20,8 +31,20 @@ class AopRegister implements Bootstrap
      */
     public static function start($worker)
     {
-        self::GenerateProxy(config('aop'));
+        self::$config = config('aop');
+        self::generateProxy(self::$config);
         self::autoloadRegister();
+    }
+
+    /**
+     * 追加代理
+     * @param array $aspect_config
+     * @throws \Exception
+     */
+    public static function appendProxy(array $aspect_config)
+    {
+        self::$config = self::arrayMergeDeep(self::$config, $aspect_config);
+        self::generateProxy(self::$config);
     }
 
     /**
@@ -29,7 +52,7 @@ class AopRegister implements Bootstrap
      * @param array $aspect_config
      * @throws \Exception
      */
-    public static function GenerateProxy(array $aspect_config)
+    public static function generateProxy(array $aspect_config)
     {
         $cache_dir = runtime_path() . '/aop/';
         self::clearCache($cache_dir);
@@ -85,18 +108,21 @@ class AopRegister implements Bootstrap
      */
     private static function autoloadRegister()
     {
-        \spl_autoload_register(function ($class) {
-            $class_namespace_array = explode('\\', $class);
-            $cache_name = join('_', $class_namespace_array) . '.php';
-            $aop_cache_dir = runtime_path() . '/aop/';
-            $path = $aop_cache_dir . $cache_name;
-            if (file_exists($path)) {
-                include_once $path;
-                return true;
-            } else {
-                return false;
-            }
-        }, true, true);
+        if (!self::$registered) {
+            \spl_autoload_register(function ($class) {
+                $class_namespace_array = explode('\\', $class);
+                $cache_name = join('_', $class_namespace_array) . '.php';
+                $aop_cache_dir = runtime_path() . '/aop/';
+                $path = $aop_cache_dir . $cache_name;
+                if (file_exists($path)) {
+                    include_once $path;
+                    return true;
+                } else {
+                    return false;
+                }
+            }, true, true);
+            self::$registered = true;
+        }
     }
 
     /**
@@ -113,5 +139,31 @@ class AopRegister implements Bootstrap
         } else {
             mkdir($path, 0755, true);
         }
+    }
+
+    /**
+     * 深度合并数组
+     * @param ...$arrs
+     * @return array
+     */
+    private static function arrayMergeDeep(...$arrs)
+    {
+        $merged = [];
+        while ($arrs) {
+            $array = array_shift($arrs);
+            if (!$array) continue;
+            foreach ($array as $key => $value) {
+                if (is_string($key)) {
+                    if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key])) {
+                        $merged[$key] = self::arrayMergeDeep(...[$merged[$key], $value]);
+                    } else {
+                        $merged[$key] = $value;
+                    }
+                } else {
+                    $merged[] = $value;
+                }
+            }
+        }
+        return $merged;
     }
 }
