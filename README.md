@@ -1,7 +1,6 @@
 ### webmanAop使用教程
 
-> 同时支持直接new和从容器获取需要被切入的对象， 在不改变现有代码的情况下切入需要切入的前置后置方法，用在统计http请求，Rpc，组件链路追踪，日志记录，统计函数耗时 修改函数返回结果的应用场景
-
+> 同时支持直接new和从容器获取需要被切入的对象，也支持三方库的切入vendor目录下的类方法， 在不改变现有代码的情况下切入需要切入的前置后置方法，用在统计http请求，Rpc，组件链路追踪，日志记录，统计函数耗时 修改函数返回结果的应用场景
 
 #### 安装
 
@@ -9,34 +8,41 @@
 composer require xiaoyangguang/webman_aop
 ```
 
-
->配置 bootstrap.php文件
+> 配置 bootstrap.php文件
 
 ```php
 <?php
 return [
-    xioayangguang\webman_aop\bootstrap\AopRegister::class  //建议放在上面，否则先前加载的类无法使用到AOP
+    xioayangguang\webman_aop\bootstrap\AopRegister::class,  //建议放在上面，否则先前加载的类无法使用到AOP
      //....省略其他 
 ];
 ```
 
-
->我们需要在 config 目录下，增加 aop.php 配置
+> 我们需要在 config 目录下，增加 aop.php 配置
 
 ```php
-//定义切入方法区分大小写
 <?php
+//定义切入方法区分大小写
+use app\aop\TestAspect;
+use app\aop\MysqlAspect;
+use app\shop\controller\BroadcastRoom;
+use think\db\PDOConnection;
+
 return [
-    \app\aop\TestAspect::class => [ //切面类
-        app\service\IndexService::class => [ //被拦截的类
-            'list',  //被拦截的方法
-            'index', //被拦截的方法
+    TestAspect::class => [
+        BroadcastRoom::class => [
+            'list',
         ],
     ],
+//    MysqlAspect::class => [
+//        PDOConnection::class => [  //底层数据库执行方法切入例子
+//           'getPDOStatement',//方法
+//        ],
+//    ],
 ];
 ```
 
->首先编写待切入类 app\aop\TestAspect
+> 首先编写待切入类 app\aop\TestAspect
 
 ```php
 <?php
@@ -74,7 +80,6 @@ class TestAspect implements AspectInterface
 }
 ```
 
-
 > 接下来编辑控制器 app\controller\Index
 
 ```php
@@ -103,7 +108,6 @@ class Index
 }
 ```
 
-
 > 编写service （被切入的类） app\service\IndexService
 
 ```php
@@ -127,7 +131,7 @@ class IndexService
 
 ```
 
->最后启动服务，并测试。
+> 最后启动服务，并测试。
 
 ```shell
 php start.php start
