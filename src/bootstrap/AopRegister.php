@@ -31,9 +31,7 @@ class AopRegister implements Bootstrap
      */
     public static function start($worker)
     {
-        self::$config = config('aop');
-        self::generateProxy(self::$config);
-        self::autoloadRegister();
+        self::appendProxy(config('aop'));
     }
 
     /**
@@ -45,6 +43,7 @@ class AopRegister implements Bootstrap
     {
         self::$config = self::arrayMergeDeep(self::$config, $aspect_config);
         self::generateProxy(self::$config);
+        self::autoloadRegister();
     }
 
     /**
@@ -65,7 +64,7 @@ class AopRegister implements Bootstrap
             }
         }
         foreach ($aspect_map as $business_class => $method) {
-            $business_class = \str_replace('\\', \DIRECTORY_SEPARATOR, $business_class);
+            //$business_class = \str_replace('\\', \DIRECTORY_SEPARATOR, $business_class);
             $proxy_code = self::generateCode($business_class, $method);
             $cache_path = $cache_dir . str_replace(DIRECTORY_SEPARATOR, "_", $business_class) . '.php';
             file_put_contents($cache_path, "<?php" . PHP_EOL . $proxy_code, LOCK_EX);
@@ -81,11 +80,19 @@ class AopRegister implements Bootstrap
      */
     public static function generateCode(&$business_class, $propertys)
     {
-        $class_path = base_path() . '/' . $business_class . '.php';
-        if (!file_exists($class_path)) \Exception(sprintf('文件 %s 不存在!', $class_path));
+        $loader = require base_path() . '/vendor/autoload.php';
+        $path = $loader->findFile($business_class);
+        if (empty($path)) {
+            //兼容workerman的加载机制
+            $class_path = base_path() . '/' . $business_class . '.php';
+        } else {
+            $class_path = realpath($path);
+        }
+        $class_path = \str_replace('\\', \DIRECTORY_SEPARATOR, $class_path);
+        if (!file_exists($class_path)) throw new \Exception(sprintf('文件 %s 不存在!', $class_path));
         $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
         $ast = $parser->parse(file_get_contents($class_path));
-        $class_namespace_array = explode('/', $business_class);
+        $class_namespace_array = explode('\\', $business_class);
         $visitor = new ProxyVisitor(end($class_namespace_array), $propertys);
         $traverser = new NodeTraverser();
         $traverser->addVisitor($visitor);
@@ -106,7 +113,7 @@ class AopRegister implements Bootstrap
     /**
      * 注册自动加载函数
      */
-    private static function autoloadRegister()
+    public static function autoloadRegister()
     {
         if (!self::$registered) {
             \spl_autoload_register(function ($class) {
