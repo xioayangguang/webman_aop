@@ -6,6 +6,7 @@
 
 namespace xioayangguang\webman_aop\bootstrap;
 
+use PhpParser\Node\Stmt\Namespace_;
 use Webman\Bootstrap;
 use PhpParser\ParserFactory;
 use PhpParser\NodeTraverser;
@@ -99,7 +100,7 @@ class AopRegister implements Bootstrap
         $proxy_ast = $traverser->traverse($ast);
         if (!$proxy_ast) throw new \Exception(sprintf('Class %s AST 处理失败', $business_class));
         foreach ($proxy_ast as $node) {
-            if ($node instanceof \PhpParser\Node\Stmt\Namespace_) {
+            if ($node instanceof Namespace_) {
                 $class_namespace = join('/', $node->name->parts);
                 $class_name = basename($class_path, ".php");
                 $business_class = $class_namespace . '/' . $class_name;
