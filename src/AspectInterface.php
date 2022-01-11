@@ -14,7 +14,7 @@ interface AspectInterface
      * @param $class
      * @param $method
      */
-    public static function beforeAdvice($params, $class, $method): void;
+    public static function beforeAdvice(&$params, $class, $method): void;
 
     /**
      * 后置通知

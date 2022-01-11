@@ -86,18 +86,17 @@ class ProxyVisitor extends NodeVisitorAbstract
         if ($node instanceof ClassMethod) {
             $method_name = $node->name->toString();
             if (in_array($method_name, array_keys($this->property))) {
-                $uses = $var_name = [];
+                $closure_params = $var_name = [];
                 foreach ($node->params as $key => $param) {
                     if ($param instanceof Param) {
-                        $uses[$key] = new Param($param->var, null, null, true);
-                        $var_name[$key] = new ArrayItem(new String_($param->var->name));
+                        $closure_params[$key] = new Param($param->var, null, null, false);
+                        $var_name[$key] = new ArrayItem($param->var, new String_($param->var->name));
                     }
                 }
                 $params = [
-                    new Closure(['static' => false, 'uses' => $uses, 'stmts' => $node->stmts]),
+                    new Closure(['static' => false, 'params' => $closure_params, 'stmts' => $node->stmts]),
                     new String_($method_name),
                     new FuncCall(new Name('get_class')),
-                    new FuncCall(new Name('func_get_args')),
                     new Array_($var_name)
                 ];
                 $stmts = [new Return_(new StaticCall(new Name('self'), '__ProxyClosure__', $params))];

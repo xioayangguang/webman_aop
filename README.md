@@ -59,7 +59,7 @@ class TestAspect implements AspectInterface
      * @param $method
      * @return mixed|void
      */
-    public function beforeAdvice($params, $method): void
+    public function beforeAdvice(&$params, $method): void
     {
         var_dump('beforeAdvice', $params, $method);
         echo PHP_EOL;
