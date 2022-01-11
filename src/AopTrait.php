@@ -21,7 +21,6 @@ trait AopTrait
     public static function __ProxyClosure__(\Closure $closure, string $method, string $class, array $params)
     {
         $pipes = self::$__AspectMap__[$method] ?? [];
-        $pipes = array_reverse($pipes);
         $callback = array_reduce($pipes, function ($carry, $pipe) use ($method, $class, &$params) {
             return function () use ($method, $class, $carry, $pipe, &$params) {
                 try {

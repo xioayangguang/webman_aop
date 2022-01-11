@@ -43,7 +43,7 @@ class ProxyVisitor extends NodeVisitorAbstract
     public function __construct(string $className, array $property)
     {
         $this->className = $className;
-        $this->property = $property;
+        $this->property = array_reverse($property);
     }
 
     /**
