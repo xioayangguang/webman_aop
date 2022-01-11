@@ -43,7 +43,7 @@ class ProxyVisitor extends NodeVisitorAbstract
     public function __construct(string $className, array $property)
     {
         $this->className = $className;
-        $this->property = array_reverse($property);
+        $this->property = $property;
     }
 
     /**
@@ -63,7 +63,7 @@ class ProxyVisitor extends NodeVisitorAbstract
         foreach ($this->property as $key => $item) {
             $array_items = [];
             foreach ($item as $value) $array_items[] = new ArrayItem(new String_($value));
-            $property_array_items[] = new ArrayItem(new Array_($array_items), new String_($key));
+            $property_array_items[] = new ArrayItem(new Array_(array_reverse($array_items)), new String_($key));
         }
         return new Property(Class_::MODIFIER_STATIC, [new PropertyProperty('__AspectMap__', new Array_($property_array_items))]);
     }
