@@ -16,7 +16,7 @@
   "type": "library",
   "require": {
     "php": "~7.2",
-    "workerman/webman": "*",
+    "workerman/webman-framework": "^1.2.1",
     "nikic/php-parser": "^4.13"
   },
   "autoload": {
