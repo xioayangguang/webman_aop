@@ -1,8 +1,8 @@
 <?php
 
-namespace xioayangguang\webman_aop\example;
+namespace Xiaoyangguang\WebmanAop\Example;
 
-use xioayangguang\webman_aop\AspectInterface;
+use Xiaoyangguang\WebmanAop\AspectInterface;
 
 class TestAspect implements AspectInterface
 {

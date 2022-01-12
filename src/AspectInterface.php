@@ -4,7 +4,7 @@
  * User: zhangxiaoxiao
  */
 
-namespace xioayangguang\webman_aop;
+namespace Xiaoyangguang\WebmanAop;
 
 interface AspectInterface
 {

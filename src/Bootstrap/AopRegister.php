@@ -4,14 +4,14 @@
  * User: zhangxiaoxiao
  */
 
-namespace xioayangguang\webman_aop\bootstrap;
+namespace Xiaoyangguang\WebmanAop\Bootstrap;
 
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
 use Webman\Bootstrap;
-use xioayangguang\webman_aop\ProxyVisitor;
+use Xiaoyangguang\WebmanAop\ProxyVisitor;
 
 class AopRegister implements Bootstrap
 {

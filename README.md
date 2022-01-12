@@ -13,7 +13,7 @@ composer require xiaoyangguang/webman_aop
 ```php
 <?php
 return [
-    xioayangguang\webman_aop\bootstrap\AopRegister::class,  //建议放在上面，否则先前加载的类无法使用到AOP
+    xioayangguang\webman_aop\Bootstrap\AopRegister::class,  //建议放在上面，否则先前加载的类无法使用到AOP
      //....省略其他 
 ];
 ```

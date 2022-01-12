@@ -1,5 +1,5 @@
 <?php
-namespace Xiaoyangguang\Webman_aop;
+namespace Xiaoyangguang\WebmanAop;
 
 class Install
 {

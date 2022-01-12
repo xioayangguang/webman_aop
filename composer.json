@@ -1,5 +1,5 @@
 {
-  "name": "xiaoyangguang/webman_aop",
+  "name": "xiaoyangguang/webmanaop",
   "description": "webman_aop",
   "keywords": [
     "webman",
@@ -21,7 +21,7 @@
   },
   "autoload": {
     "psr-4": {
-      "xioayangguang\\webman_aop\\": "./src"
+      "Xiaoyangguang\\WebmanAop\\": "./src"
     }
   }
 }

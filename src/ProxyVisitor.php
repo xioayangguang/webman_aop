@@ -4,7 +4,7 @@
  * User: zhangxiaoxiao
  */
 
-namespace xioayangguang\webman_aop;
+namespace Xiaoyangguang\WebmanAop;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\Array_;
