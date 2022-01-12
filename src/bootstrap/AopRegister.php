@@ -7,10 +7,10 @@
 namespace xioayangguang\webman_aop\bootstrap;
 
 use PhpParser\Node\Stmt\Namespace_;
-use Webman\Bootstrap;
-use PhpParser\ParserFactory;
 use PhpParser\NodeTraverser;
+use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
+use Webman\Bootstrap;
 use xioayangguang\webman_aop\ProxyVisitor;
 
 class AopRegister implements Bootstrap
@@ -32,7 +32,7 @@ class AopRegister implements Bootstrap
      */
     public static function start($worker)
     {
-        self::appendProxy(config('aop'));
+        self::appendProxy(config('plugin.xiaoyangguang.webman_aop.aop', []));
     }
 
     /**
