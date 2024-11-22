@@ -15,7 +15,7 @@
   ],
   "type": "library",
   "require": {
-    "php": "~7.2 || ^8.0",
+    "php": ">=7.2",
     "workerman/webman-framework": "^1.2.1 || ^1.5.25 || ^1.6.4",
     "nikic/php-parser": "^4.13"
   },
