@@ -67,7 +67,7 @@ class AopRegister implements Bootstrap
         foreach ($aspect_map as $business_class => $method) {
             //$business_class = \str_replace('\\', \DIRECTORY_SEPARATOR, $business_class);
             $proxy_code = self::generateCode($business_class, $method);
-            $cache_path = $cache_dir . str_replace(DIRECTORY_SEPARATOR, "_", $business_class) . '.php';
+            $cache_path = $cache_dir . str_replace(['/', '\\'], ['_', '_'], $business_class) . '.php';
             file_put_contents($cache_path, "<?php" . PHP_EOL . $proxy_code, LOCK_EX);
         }
     }

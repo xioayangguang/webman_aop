@@ -96,7 +96,7 @@ class ProxyVisitor extends NodeVisitorAbstract
                 $params = [
                     new Closure(['static' => false, 'params' => $closure_params, 'stmts' => $node->stmts]),
                     new String_($method_name),
-                    new FuncCall(new Name('get_class')),
+                    new FuncCall(new Name('get_class'), [new Name('$this')]),
                     new Array_($var_name)
                 ];
                 $stmts = [new Return_(new StaticCall(new Name('self'), '__ProxyClosure__', $params))];
